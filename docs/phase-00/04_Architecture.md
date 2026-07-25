@@ -2,33 +2,34 @@
 
 # 1. System Architecture
 
-KitchenOS follows a modern, scalable, layered, and modular architecture designed for enterprise-grade Software-as-a-Service (SaaS) applications.
+KitchenOS follows a modern, cloud-native, layered, and modular architecture designed for enterprise-grade multi-tenant SaaS applications.
 
-The architecture separates responsibilities into multiple independent layers, making the application easy to maintain, test, scale, and deploy.
+The architecture separates presentation, business logic, data access, and infrastructure into independent layers, making the system scalable, maintainable, secure, and easy to extend.
 
 ---
 
 # 2. High-Level Architecture
 
 ```text
-                    Internet
-                        │
-                        ▼
-                 ┌──────────────┐
-                 │    Nginx     │
-                 │ Reverse Proxy│
-                 └──────┬───────┘
-                        │
-          ┌─────────────┴─────────────┐
-          ▼                           ▼
- ┌──────────────────┐        ┌──────────────────┐
- │  Next.js Frontend│        │ FastAPI Backend  │
- │ (React + TS)     │        │ REST API         │
- └──────────────────┘        └────────┬─────────┘
-                                      │
-          ┌──────────────┬────────────┼──────────────┬─────────────┐
-          ▼              ▼            ▼              ▼
-   PostgreSQL         Redis        MinIO         Celery Workers
+                           Internet
+                               │
+                               ▼
+                        ┌─────────────┐
+                        │    Nginx    │
+                        │Reverse Proxy│
+                        └──────┬──────┘
+                               │
+             ┌─────────────────┴─────────────────┐
+             ▼                                   ▼
+   ┌────────────────────┐              ┌────────────────────┐
+   │  Next.js Frontend  │              │  FastAPI Backend   │
+   │ React + TypeScript │              │     REST APIs      │
+   └────────────────────┘              └─────────┬──────────┘
+                                                 │
+                     ┌──────────────┬────────────┼──────────────┬──────────────┐
+                     ▼              ▼            ▼              ▼
+                 MongoDB         Redis        MinIO         Celery Workers
+                 (Beanie ODM)
 ```
 
 ---
@@ -37,86 +38,89 @@ The architecture separates responsibilities into multiple independent layers, ma
 
 KitchenOS follows:
 
+- Clean Architecture
 - Layered Architecture
-- Clean Architecture Principles
 - Modular Architecture
 - REST API Architecture
 - Multi-Tenant SaaS Architecture
+- Domain Driven Design (DDD) Principles
 
 ---
 
 # 4. Backend Architecture
 
-The backend is divided into independent layers.
+The backend follows a layered architecture.
 
 ```text
 API Layer
-    │
+     │
 Service Layer
-    │
+     │
 Repository Layer
-    │
-Database Layer
+     │
+Beanie ODM
+     │
+MongoDB
 ```
 
 ### API Layer
 
-Responsibilities:
+Responsibilities
 
 - Request Handling
-- Validation
+- Request Validation
 - Authentication
 - Authorization
-- Response Generation
+- Response Formatting
 
 ### Service Layer
 
-Responsibilities:
+Responsibilities
 
 - Business Logic
-- Data Processing
-- Validation Rules
-- Transactions
+- Inventory Processing
+- Order Processing
+- Payment Workflow
+- Restaurant Rules
 
 ### Repository Layer
 
-Responsibilities:
+Responsibilities
 
-- Database Queries
-- CRUD Operations
+- Database Operations
 - Query Optimization
+- Data Persistence
+- Collection Access
 
 ### Database Layer
 
-Responsibilities:
+Responsibilities
 
-- PostgreSQL
-- Data Persistence
-- Constraints
-- Relationships
+- MongoDB Collections
+- Index Management
+- Data Storage
+- Aggregation Pipelines
 
 ---
 
 # 5. Frontend Architecture
-
-The frontend follows component-based architecture.
 
 ```text
 Pages
    │
 Layouts
    │
-Components
+Reusable Components
    │
-Hooks
+Custom Hooks
    │
 API Services
 ```
 
-Features:
+Features
 
-- Reusable Components
-- Responsive UI
+- Responsive Design
+- Component Reusability
 - Type Safety
 - State Management
 - API Integration
@@ -125,19 +129,19 @@ Features:
 
 # 6. Authentication Flow
 
-Authentication uses JWT tokens.
+KitchenOS uses JWT Authentication.
 
 ```text
 User Login
-     │
-JWT Token Generated
-     │
-Stored Securely
-     │
-Every API Request
-     │
-Token Validation
-     │
+      │
+JWT Access Token
+      │
+Refresh Token
+      │
+Protected API
+      │
+Permission Validation
+      │
 Authorized Response
 ```
 
@@ -147,20 +151,20 @@ Authorized Response
 
 ```text
 Browser
-   │
+     │
 Next.js
-   │
-REST API
-   │
+     │
 FastAPI Router
-   │
+     │
 Service Layer
-   │
+     │
 Repository Layer
-   │
-PostgreSQL
-   │
-Response
+     │
+Beanie ODM
+     │
+MongoDB
+     │
+JSON Response
 ```
 
 ---
@@ -185,7 +189,7 @@ KitchenOS
 
 # 9. Security Architecture
 
-Security includes:
+KitchenOS implements
 
 - JWT Authentication
 - Refresh Tokens
@@ -194,8 +198,9 @@ Security includes:
 - HTTPS
 - CORS
 - Input Validation
-- SQL Injection Protection
-- XSS Protection
+- Rate Limiting
+- Secure Headers
+- Audit Logs
 
 ---
 
@@ -203,18 +208,20 @@ Security includes:
 
 Primary Database
 
-- PostgreSQL
+- MongoDB
+
+ODM
+
+- Beanie ODM
 
 Supporting Services
 
 - Redis
 - MinIO
 
-Future
+Production Database
 
-- Read Replicas
-- Database Backup
-- Disaster Recovery
+- MongoDB Atlas
 
 ---
 
@@ -229,53 +236,56 @@ GitHub Actions
       │
 Docker Build
       │
-Production Deployment
+Render (Backend)
       │
-Render + Vercel
+MongoDB Atlas
+      │
+Vercel (Frontend)
 ```
 
 ---
 
 # 12. Scalability Strategy
 
-KitchenOS is designed to support:
+KitchenOS supports
 
+- Multi-Tenant SaaS
 - Horizontal Scaling
-- Multiple Restaurants
-- Multiple Branches
-- High Traffic
 - Cloud Deployment
 - Containerized Services
+- Stateless APIs
+- Async Processing
+- Redis Caching
 
 ---
 
 # 13. Design Principles
 
-The project follows:
+KitchenOS follows
 
-- SOLID Principles
+- SOLID
 - DRY
 - KISS
+- Clean Code
 - Separation of Concerns
 - Dependency Injection
-- Clean Code
-- Reusable Components
+- Modular Design
 
 ---
 
 # 14. Benefits of This Architecture
 
-- Easy Maintenance
 - High Performance
-- Modular Development
-- Better Security
-- Easy Testing
+- Async Processing
+- Easy Maintenance
+- Flexible Schema
 - Enterprise Scalability
-- Cloud Ready
+- Cloud Native
 - Production Ready
+- Secure by Design
 
 ---
 
 # 15. Conclusion
 
-The KitchenOS architecture is designed using modern software engineering principles and enterprise architecture patterns. The combination of FastAPI, Next.js, PostgreSQL, Redis, Docker, and modular design ensures that the application remains scalable, secure, maintainable, and suitable for real-world restaurant operations.
+KitchenOS uses a modern cloud-native architecture powered by FastAPI, MongoDB, Beanie ODM, Redis, Docker, and Next.js. This architecture provides excellent scalability, flexibility, maintainability, and performance for enterprise-grade restaurant management.

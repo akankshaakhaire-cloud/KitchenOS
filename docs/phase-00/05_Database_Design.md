@@ -2,7 +2,9 @@
 
 # 1. Database Design Overview
 
-KitchenOS uses PostgreSQL as the primary relational database. The database is designed using normalization principles, strong relationships, indexing strategies, and audit tracking to support a production-grade multi-tenant SaaS application.
+KitchenOS uses MongoDB as the primary database. The system is designed using a document-oriented architecture that supports scalability, flexibility, high performance, and multi-tenant SaaS operations.
+
+MongoDB allows KitchenOS to efficiently manage restaurant data while keeping the application easy to maintain and extend.
 
 ---
 
@@ -13,20 +15,22 @@ The database is designed to be:
 - Scalable
 - Secure
 - High Performance
-- ACID Compliant
+- Flexible
 - Multi-Tenant Ready
+- Cloud Native
 - Easy to Maintain
-- Highly Available
 
 ---
 
-# 3. Database Engine
+# 3. Database Technology
 
-| Technology | Version |
+| Technology | Purpose |
 |------------|---------|
-| PostgreSQL | 17+ |
-| SQLAlchemy | 2.0 |
-| Alembic | Latest |
+| MongoDB | Primary Database |
+| Beanie ODM | Object Document Mapper |
+| Motor | Async MongoDB Driver |
+| MongoDB Atlas | Production Database |
+| MongoDB Compass | Development Tool |
 
 ---
 
@@ -35,18 +39,18 @@ The database is designed to be:
 Each restaurant is treated as an independent tenant.
 
 ```text
-Tenant (Restaurant)
-        │
-        ├── Branches
-        ├── Users
-        ├── Menu
-        ├── Inventory
-        ├── Orders
-        ├── Customers
-        ├── Reports
+Restaurant
+      │
+      ├── Branches
+      ├── Users
+      ├── Menu
+      ├── Inventory
+      ├── Orders
+      ├── Customers
+      ├── Employees
 ```
 
-Every business table contains a `restaurant_id` to ensure complete data isolation between tenants.
+Every business document contains a `restaurant_id` field to ensure complete data isolation between tenants.
 
 ---
 
@@ -58,95 +62,63 @@ Every business table contains a `restaurant_id` to ensure complete data isolatio
 - User Management
 - Menu Management
 - Inventory Management
+- Supplier Management
 - Purchase Management
 - POS
-- Kitchen Orders
+- Kitchen Management
 - Customer Management
-- Staff Management
+- Employee Management
 - Reports
 - Notifications
 - Audit Logs
 
 ---
 
-# 6. Database Tables
+# 6. MongoDB Collections
 
-## Authentication
+Authentication
 
 - users
 - roles
 - permissions
-- role_permissions
-- user_roles
 
----
-
-## Restaurant
+Restaurant
 
 - restaurants
 - branches
 
----
-
-## Menu
+Menu
 
 - categories
 - menu_items
-- menu_variants
-- menu_images
 
----
-
-## Inventory
+Inventory
 
 - inventory_items
 - inventory_transactions
 - suppliers
 - purchase_orders
-- purchase_order_items
 
----
-
-## Sales
+Sales
 
 - orders
-- order_items
-- invoices
 - payments
 
----
-
-## Kitchen
+Kitchen
 
 - kitchen_orders
-- kitchen_order_items
 
----
-
-## Customers
+Customers
 
 - customers
-- customer_addresses
 - loyalty_points
 
----
-
-## Employees
+Employees
 
 - employees
 - attendance
-- shifts
 
----
-
-## Reports
-
-- daily_sales
-- monthly_sales
-
----
-
-## System
+System
 
 - notifications
 - audit_logs
@@ -154,118 +126,131 @@ Every business table contains a `restaurant_id` to ensure complete data isolatio
 
 ---
 
-# 7. Common Columns
+# 7. Common Document Fields
 
-Every table will contain:
-
-- id (UUID)
-- restaurant_id
-- created_at
-- updated_at
-- created_by
-- updated_by
-- is_active
-- is_deleted
-
----
-
-# 8. Primary Keys
-
-All tables use:
+Every business collection includes:
 
 ```text
-UUID
-```
-
-Example:
-
-```sql
-id UUID PRIMARY KEY
+_id
+restaurant_id
+created_at
+updated_at
+created_by
+updated_by
+is_active
+is_deleted
 ```
 
 ---
 
-# 9. Foreign Keys
+# 8. Primary Identifier
 
-Examples:
+MongoDB automatically creates
 
 ```text
-restaurant_id → restaurants.id
-branch_id → branches.id
-user_id → users.id
-category_id → categories.id
-order_id → orders.id
-customer_id → customers.id
-supplier_id → suppliers.id
+ObjectId (_id)
 ```
 
----
-
-# 10. Relationships
-
-- Restaurant → Branches (1:N)
-- Restaurant → Users (1:N)
-- Category → Menu Items (1:N)
-- Order → Order Items (1:N)
-- Customer → Orders (1:N)
-- Supplier → Purchase Orders (1:N)
-- Purchase Order → Purchase Items (1:N)
+Beanie will map this automatically to document models.
 
 ---
 
-# 11. Naming Convention
+# 9. Document Relationships
 
-Tables:
+KitchenOS primarily uses referencing.
+
+Examples
+
+```text
+restaurant_id
+branch_id
+user_id
+category_id
+customer_id
+supplier_id
+order_id
+```
+
+Small frequently-used data may be embedded where appropriate to reduce database queries.
+
+---
+
+# 10. Embedding vs Referencing
+
+Embedded Documents
+
+- Restaurant Address
+- Customer Address
+- Menu Variants
+
+Referenced Documents
+
+- Orders
+- Inventory
+- Suppliers
+- Employees
+- Customers
+
+---
+
+# 11. Collection Naming Convention
+
+Collections
 
 ```text
 snake_case
 plural
 ```
 
-Examples:
+Examples
 
 - users
 - restaurants
+- menu_items
 - inventory_items
 
-Columns:
+Document Fields
 
 ```text
 snake_case
 ```
 
-Examples:
+Examples
 
+- restaurant_id
 - created_at
 - updated_at
-- restaurant_id
 
 ---
 
 # 12. Audit Fields
 
-Every business table includes:
+Every business document stores:
 
 - created_at
 - updated_at
 - created_by
 - updated_by
 
+These fields support auditing and reporting.
+
 ---
 
 # 13. Soft Delete
 
-Instead of deleting records permanently:
+Documents are never permanently deleted.
+
+Instead,
 
 ```text
 is_deleted = true
 ```
 
-This preserves historical data for reporting and auditing.
+This preserves historical information.
 
 ---
 
-# 14. Indexing Strategy
+# 14. Index Strategy
 
 Indexes will be created on:
 
@@ -273,73 +258,79 @@ Indexes will be created on:
 - username
 - restaurant_id
 - branch_id
-- order_date
+- category_id
 - inventory_item_name
-- category_name
+- order_number
+- created_at
 
-Composite indexes will be added where required for performance.
+Compound indexes will be used where required.
 
 ---
 
-# 15. Constraints
+# 15. Validation Strategy
 
-The database will enforce:
+KitchenOS validates data using:
 
-- Primary Keys
-- Foreign Keys
-- Unique Constraints
-- NOT NULL Constraints
-- CHECK Constraints
+- Pydantic v2
+- Beanie Document Models
+- FastAPI Request Validation
 
 ---
 
 # 16. Transactions
 
-Critical operations use database transactions:
+MongoDB Transactions will be used for:
 
 - Order Placement
 - Payment Processing
 - Inventory Updates
 - Purchase Orders
 
-This ensures data consistency.
+This ensures data consistency for critical business operations.
 
 ---
 
-# 17. Migration Strategy
+# 17. Backup Strategy
 
-Alembic will manage:
-
-- Schema Changes
-- Table Creation
-- Index Creation
-- Constraint Updates
-- Rollback Support
-
----
-
-# 18. Backup Strategy
-
-Production database backups include:
+Production backups include:
 
 - Daily Backup
 - Weekly Full Backup
+- Point-in-Time Recovery
 - Restore Testing
+
+MongoDB Atlas backup features will be used in production.
 
 ---
 
-# 19. Performance Optimization
+# 18. Performance Optimization
 
-Performance techniques:
+Performance techniques include:
 
 - Proper Indexing
-- Optimized Queries
+- Aggregation Pipelines
 - Pagination
-- Lazy Loading
 - Redis Caching
+- Efficient Document Design
+
+---
+
+# 19. Development Strategy
+
+Development Database
+
+- MongoDB Community Edition
+
+Production Database
+
+- MongoDB Atlas
+
+Database Tool
+
+- MongoDB Compass
 
 ---
 
 # 20. Conclusion
 
-The KitchenOS database is designed using enterprise database principles to provide security, scalability, reliability, and high performance. PostgreSQL, SQLAlchemy, and Alembic together provide a strong foundation for building a production-ready multi-tenant Restaurant Operating System.
+KitchenOS uses MongoDB, Beanie ODM, and Motor to provide a scalable, cloud-native, and high-performance database architecture. The document-oriented design supports enterprise restaurant operations while remaining flexible for future feature expansion.

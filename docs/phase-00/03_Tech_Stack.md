@@ -2,7 +2,9 @@
 
 # 1. Technology Stack Overview
 
-KitchenOS is built using a modern, production-grade technology stack designed for scalability, security, maintainability, and high performance. Each technology has been carefully selected based on industry standards and real-world enterprise application requirements.
+KitchenOS is built using a modern, production-grade technology stack designed for scalability, security, maintainability, and high performance. The platform follows a cloud-native architecture and is optimized for a multi-tenant Restaurant Operating System (ROS).
+
+Every technology has been selected based on enterprise software development best practices.
 
 ---
 
@@ -12,12 +14,14 @@ KitchenOS is built using a modern, production-grade technology stack designed fo
 |------------|---------|
 | Python 3.13+ | Primary Programming Language |
 | FastAPI | High-performance REST API Framework |
-| SQLAlchemy 2.0 | ORM (Object Relational Mapper) |
-| Alembic | Database Migration Tool |
+| Motor | Async MongoDB Driver |
+| Beanie ODM | MongoDB Object Document Mapper |
 | Pydantic v2 | Data Validation |
 | Uvicorn | ASGI Server |
 | Python-Jose | JWT Authentication |
 | Passlib + Bcrypt | Password Hashing |
+| Celery | Background Jobs |
+| Redis | Cache & Task Queue |
 
 ---
 
@@ -26,152 +30,184 @@ KitchenOS is built using a modern, production-grade technology stack designed fo
 | Technology | Purpose |
 |------------|---------|
 | Next.js 15 | React Framework |
-| React 19 | User Interface Development |
+| React 19 | User Interface |
 | TypeScript | Type Safety |
 | Tailwind CSS | Styling Framework |
-| Shadcn UI | Reusable UI Components |
-| TanStack Query | Server State Management |
-| React Hook Form | Form Handling |
-| Zod | Validation |
-| Recharts | Dashboards & Charts |
+| Shadcn UI | UI Components |
+| TanStack Query | API State Management |
+| React Hook Form | Form Management |
+| Zod | Client-side Validation |
+| Recharts | Dashboard Charts |
 
 ---
 
 # 4. Database
 
-## PostgreSQL
+## MongoDB
 
-PostgreSQL is selected as the primary relational database because it offers:
+KitchenOS uses MongoDB as its primary database.
 
-- ACID Compliance
+MongoDB provides:
+
+- Flexible Document Model
 - High Performance
-- Strong Data Integrity
-- JSON Support
-- Scalability
-- Advanced Indexing
+- Horizontal Scalability
+- JSON-like BSON Documents
+- Easy Schema Evolution
+- Cloud Native Support
 - Enterprise Reliability
+
+Production Database
+
+- MongoDB Atlas
+
+Development Database
+
+- MongoDB Community Edition
+
+Database Tool
+
+- MongoDB Compass
 
 ---
 
-# 5. Cache Layer
+# 5. Object Document Mapper (ODM)
+
+KitchenOS uses **Beanie ODM**.
+
+Benefits:
+
+- Async Operations
+- Native FastAPI Integration
+- Pydantic Models
+- Automatic Validation
+- Clean Document Models
+
+---
+
+# 6. Cache Layer
 
 ## Redis
 
 Redis will be used for:
 
-- Session Management
 - API Caching
+- Session Management
 - Rate Limiting
 - Background Job Queue
 - Performance Optimization
 
 ---
 
-# 6. Background Processing
+# 7. Background Processing
 
 ## Celery
 
-Celery will handle asynchronous tasks such as:
+Celery handles:
 
 - Email Notifications
-- Scheduled Reports
-- Data Synchronization
 - Inventory Alerts
+- Scheduled Reports
 - Background Processing
+- Notification Queue
 
 ---
 
-# 7. Object Storage
+# 8. Object Storage
 
 ## MinIO
 
-MinIO will store:
+MinIO stores:
 
 - Restaurant Logos
 - Menu Images
 - Product Images
-- User Profile Images
+- User Avatars
 - Documents
+- Reports
 
 ---
 
-# 8. Authentication & Security
+# 9. Authentication & Security
 
-KitchenOS will implement:
+KitchenOS implements:
 
 - JWT Authentication
 - Refresh Tokens
-- Role-Based Access Control (RBAC)
+- RBAC
 - Password Hashing
 - Secure API Access
-- CORS Protection
 - Input Validation
+- HTTPS
+- CORS Protection
 
 ---
 
-# 9. API Development
+# 10. API Development
 
-The backend will expose RESTful APIs using FastAPI.
+KitchenOS APIs are built using FastAPI.
 
-Features include:
+Features:
 
-- OpenAPI Documentation
+- OpenAPI
 - Swagger UI
 - ReDoc
 - API Versioning
-- Standard Response Models
+- Standard Responses
 - Exception Handling
+- Dependency Injection
 
 ---
 
-# 10. Containerization
+# 11. Containerization
 
 Docker will be used for:
 
-- Development Environment
-- Production Deployment
-- Service Isolation
-- Easy Scaling
+- Development
+- Testing
+- Production
 - Consistent Builds
+- Service Isolation
 
 Docker Compose will orchestrate:
 
-- Backend
-- Frontend
-- PostgreSQL
+- FastAPI
+- Next.js
+- MongoDB
 - Redis
 - MinIO
+- Celery
 - Nginx
 
 ---
 
-# 11. Reverse Proxy
+# 12. Reverse Proxy
 
 ## Nginx
 
 Responsibilities:
 
 - Reverse Proxy
-- Static File Serving
 - SSL Termination
+- Static File Serving
 - Load Balancing
 - Security Headers
 
 ---
 
-# 12. CI/CD
+# 13. CI/CD
 
 GitHub Actions will automate:
 
-- Code Quality Checks
 - Linting
+- Code Quality
 - Unit Testing
 - Docker Build
 - Deployment Pipeline
 
 ---
 
-# 13. Testing Strategy
+# 14. Testing Strategy
 
 Backend
 
@@ -187,7 +223,7 @@ Frontend
 
 ---
 
-# 14. Deployment
+# 15. Deployment
 
 Frontend
 
@@ -199,7 +235,11 @@ Backend
 
 Database
 
-- PostgreSQL
+- MongoDB Atlas
+
+Cache
+
+- Redis
 
 Storage
 
@@ -211,24 +251,55 @@ Reverse Proxy
 
 ---
 
-# 15. Development Tools
+# 16. Development Tools
 
 - Visual Studio Code
 - Git
 - GitHub
 - Postman
 - Docker Desktop
-- pgAdmin
+- MongoDB Compass
 - DBeaver
 
 ---
 
-# 16. Why This Technology Stack?
+# 17. Why This Technology Stack?
 
-This technology stack has been selected to build a secure, scalable, cloud-ready, and production-grade SaaS application. It follows modern software engineering principles, supports enterprise development practices, and provides excellent performance, maintainability, and developer productivity.
+The selected technology stack enables KitchenOS to deliver high performance, scalability, flexibility, and security. MongoDB's document-oriented architecture works well for restaurant operations, while FastAPI provides fast asynchronous APIs. Combined with Next.js, Redis, Docker, and GitHub Actions, the platform is well suited for enterprise SaaS deployment.
 
 ---
 
-# 17. Conclusion
+# 18. Final Technology Stack
 
-The selected technology stack ensures that KitchenOS is capable of handling real-world restaurant operations while maintaining high performance, security, scalability, and reliability. The combination of FastAPI, Next.js, PostgreSQL, Redis, Docker, and modern DevOps practices makes KitchenOS a future-ready enterprise application.
+Backend
+
+- Python 3.13
+- FastAPI
+- Motor
+- Beanie ODM
+- MongoDB
+- Redis
+- Celery
+
+Frontend
+
+- Next.js 15
+- React 19
+- TypeScript
+- Tailwind CSS
+- Shadcn UI
+
+Infrastructure
+
+- Docker
+- Docker Compose
+- Nginx
+- GitHub Actions
+- Render
+- Vercel
+
+---
+
+# 19. Conclusion
+
+The KitchenOS technology stack is designed to support a modern, scalable, cloud-native Restaurant Operating System. FastAPI, MongoDB, Beanie ODM, Redis, Docker, and Next.js provide an enterprise-ready foundation capable of handling real-world restaurant operations efficiently.
