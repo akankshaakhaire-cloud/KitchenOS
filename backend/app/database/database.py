@@ -2,6 +2,7 @@ from beanie import init_beanie
 
 from app.config.settings import settings
 from app.database.connection import connect_to_mongodb
+from app.models.base import BaseDocument
 
 
 async def init_database():
@@ -13,9 +14,9 @@ async def init_database():
 
     database = client[settings.DATABASE_NAME]
 
-    # ==========================
+    # ==========================================
     # Debug Information
-    # ==========================
+    # ==========================================
     print("=" * 60)
     print("🚀 KitchenOS MongoDB Debug")
     print("=" * 60)
@@ -33,7 +34,7 @@ async def init_database():
 
     await init_beanie(
         database=database,
-        document_models=[],
+        document_models=[BaseDocument],
     )
 
     print("✅ MongoDB Connected Successfully")
