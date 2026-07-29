@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from app.api.health import router as health_router
 from app.config.settings import settings
 from app.database.connection import close_mongodb_connection
 from app.database.database import init_database
@@ -9,6 +10,10 @@ from app.database.database import init_database
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """
+    Application lifespan events.
+    """
+
     # Startup
     await init_database()
 
@@ -24,6 +29,12 @@ app = FastAPI(
     description="Production Ready Cloud Kitchen Management System",
     lifespan=lifespan,
 )
+
+# ==========================
+# API Routers
+# ==========================
+
+app.include_router(health_router)
 
 
 @app.get("/")
